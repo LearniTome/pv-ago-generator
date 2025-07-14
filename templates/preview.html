@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Aperçu du PV AGO</title>
+</head>
+<body>
+    <h2>Aperçu du PV généré</h2>
+    <h3>Entreprise</h3>
+    <p><b>Nom :</b> {{ data.nom_entreprise }}</p>
+    <p><b>Type de société :</b> {{ data.type_societe }}</p>
+    <p><b>Capital :</b> {{ data.capital }}</p>
+    <p><b>Adresse :</b> {{ data.adresse }}</p>
+    <p><b>Informations fiscales :</b> {{ data.infos_fiscales }}</p>
+    <h3>Assemblée</h3>
+    <p><b>Date :</b> {{ data.date_assemblee }}</p>
+    <p><b>Lieu :</b> {{ data.lieu_assemblee }}</p>
+    <p><b>Nom associé unique :</b> {{ data.nom_associe }}</p>
+    <p><b>Détails associé unique :</b> {{ data.details_associe }}</p>
+    <h3>Participants</h3>
+    <pre>{{ data.participants }}</pre>
+    <h3>Ordre du jour</h3>
+    <pre>{{ data.ordre_jour }}</pre>
+    <h3>Décisions prises</h3>
+    <pre>{{ data.decisions }}</pre>
+    <h3>Résultats des votes</h3>
+    <pre>{{ data.votes }}</pre>
+    <h3>Remarques</h3>
+    <pre>{{ data.remarques }}</pre>
+    <hr>
+    <p>Le document Word a été généré : <b>{{ wordfile }}</b></p>
+    <form method="post" action="/convert_pdf">
+        <input type="hidden" name="wordfile" value="{{ wordfile }}">
+        <button type="submit">Convertir en PDF</button>
+    </form>
+    {% if pdf_file %}
+        <p>Le PDF est prêt : <a href="/pv/{{ pdf_file }}" target="_blank">Télécharger le PV PDF</a></p>
+    {% endif %}
+    <br>
+    <a href="/formulaire">Retour au formulaire</a>
+</body>
+</html>

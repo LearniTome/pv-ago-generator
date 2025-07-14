@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire PV AGO</title>
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/decoupled-document/ckeditor.js"></script>
+    <style>
+        .multi-group { margin-bottom: 1em; }
+        .multi-group input { margin-right: 0.5em; }
+        .add-btn { margin-left: 1em; }
+        .editor-container { border: 1px solid #ddd; min-height: 400px; padding: 10px; }
+        #toolbar-container { padding: 10px; background: #f4f4f4; border: 1px solid #ddd; margin-bottom: 5px; }
+        #editor-content { min-height: 400px; border: 1px solid #ddd; padding: 20px; }
+        .ck-editor__editable { min-height: 400px; }
+        .ck-editor__editable_inline { min-height: 400px; }
+        .ck.ck-editor__main>.ck-editor__editable { min-height: 400px; }
+    </style>
+</head>
+<body>
+    <h2>Générer un PV d'Assemblée Générale Ordinaire</h2>
+    <form method="post" action="/generer">
+        <fieldset>
+            <legend>Informations sur l'entreprise</legend>
+            <label>Nom de l'entreprise :</label>
+            <input type="text" name="nom_entreprise" required><br>
+            <label>Type de société :</label>
+            <input type="text" name="type_societe" required><br>
+            <label>Capital :</label>
+            <input type="text" name="capital" required><br>
+            <label>Adresse :</label>
+            <input type="text" name="adresse" required><br>
+            <label>Informations fiscales :</label>
+            <input type="text" name="infos_fiscales"><br>
+        </fieldset>
+        <fieldset>
+            <legend>Associés</legend>
+            <div id="associes">
+                <div class="multi-group">
+                    <input type="text" name="associes[]" placeholder="Nom de l'associé">
+                    <input type="text" name="details_associes[]" placeholder="Détails">
+                    <button type="button" class="add-btn" onclick="addAssocie()">+</button>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Signataires</legend>
+            <div id="signataires">
+                <div class="multi-group">
+                    <input type="text" name="signataires[]" placeholder="Nom du signataire">
+                    <input type="text" name="details_signataires[]" placeholder="Détails">
+                    <button type="button" class="add-btn" onclick="addSignataire()">+</button>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Informations sur l'assemblée</legend>
+            <label>Date de l'assemblée :</label>
+            <input type="date" name="date_assemblee" required><br>
+            <label>Lieu de l'assemblée :</label>
+            <input type="text" name="lieu_assemblee" required><br>
+            <label>Nom de l'associé unique :</label>
+            <input type="text" name="nom_associe" required><br>
+            <label>Détails de l'associé unique :</label>
+            <input type="text" name="details_associe"><br>
+        </fieldset>
+        <fieldset>
+            <legend>Participants</legend>
+            <label>Participants (nom, titre, signature) :</label><br>
+            <textarea name="participants" rows="4" cols="50" placeholder="Un participant par ligne : nom, titre, signature" required></textarea><br>
+        </fieldset>
+        <fieldset>
+            <legend>Ordre du jour et décisions</legend>
+            <label>Ordre du jour :</label><br>
+            <textarea name="ordre_jour" rows="4" cols="50" required></textarea><br>
+            <label>Détails des décisions prises :</label><br>
+            <textarea name="decisions" rows="3" cols="50" required></textarea><br>
+            <label>Résultats des votes :</label><br>
+            <textarea name="votes" rows="3" cols="50" required></textarea><br>
+            <label>Remarques :</label><br>
+            <textarea name="remarques" rows="3" cols="50"></textarea><br>
+        </fieldset>
+        <fieldset>
+            <legend>Contenu du PV (éditeur avancé)</legend>
+            <div id="toolbar-container"></div>
+            <div class="editor-container">
+                <div id="editor-content"></div>
+                <input type="hidden" name="pv_contenu" id="pv_contenu">
+            </div>
+        </fieldset>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                DecoupledEditor.create(document.querySelector('#editor-content'), {
+                    removePlugins: [
+                        'CKBox',
+                        'CKFinder',
+                        'EasyImage',
+                        'RealTimeCollaborativeComments',
+                        'RealTimeCollaborativeTrackChanges',
+                        'RealTimeCollaborativeRevisionHistory',
+                        'PresenceList',
+                        'Comments',
+                        'TrackChanges',
+                        'TrackChangesData',
+                        'RevisionHistory',
+                        'Pagination',
+                        'WProofreader',
+                        'MathType',
+                        'SlashCommand',
+                        'Template',
+                        'DocumentOutline',
+                        'FormatPainter',
+                        'TableOfContents',
+                        'PasteFromOfficeFormattingCleanup'
+                    ],
+                    toolbar: {
+                        items: [
+                            'exportPDF','exportWord', '|',
+                            'findAndReplace', 'selectAll', '|',
+                            'heading', '|',
+                            'bold', 'italic', 'strikethrough', 'underline', 'subscript', 'superscript', '|',
+                            'bulletedList', 'numberedList', 'todoList', '|',
+                            'outdent', 'indent', '|',
+                            'undo', 'redo',
+                            '-',
+                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', 'highlight', '|',
+                            'alignment', '|',
+                            'link', 'insertImage', 'blockQuote', 'insertTable', 'mediaEmbed', '|',
+                            'specialCharacters', 'horizontalLine', 'pageBreak', '|',
+                            'textPartLanguage', '|',
+                            'sourceEditing'
+                        ],
+                        shouldNotGroupWhenFull: true
+                    },
+                    placeholder: 'Commencez à rédiger votre PV ici...',
+                    list: {
+                        properties: {
+                            styles: true,
+                            startIndex: true,
+                            reversed: true
+                        }
+                    },
+                    fontFamily: {
+                        options: [
+                            'default',
+                            'Arial, Helvetica, sans-serif',
+                            'Courier New, Courier, monospace',
+                            'Georgia, serif',
+                            'Lucida Sans Unicode, Lucida Grande, sans-serif',
+                            'Tahoma, Geneva, sans-serif',
+                            'Times New Roman, Times, serif',
+                            'Trebuchet MS, Helvetica, sans-serif',
+                            'Verdana, Geneva, sans-serif'
+                        ],
+                        supportAllValues: true
+                    },
+                    fontSize: {
+                        options: [10, 12, 14, 'default', 18, 20, 22],
+                        supportAllValues: true
+                    },
+                    htmlSupport: {
+                        allow: [
+                            {
+                                name: /.*/,
+                                attributes: true,
+                                classes: true,
+                                styles: true
+                            }
+                        ]
+                    },
+                    link: {
+                        decorators: {
+                            addTargetToExternalLinks: true,
+                            defaultProtocol: 'https://',
+                            toggleDownloadable: {
+                                mode: 'manual',
+                                label: 'Downloadable',
+                                attributes: {
+                                    download: 'file'
+                                }
+                            }
+                        }
+                    },
+                    mention: {
+                        feeds: [
+                            {
+                                marker: '@',
+                                feed: [
+                                    '@apple', '@bears', '@brownie', '@cake', '@cake', '@candy', '@canes', '@chocolate', '@cookie', '@cotton', '@cream',
+                                    '@cupcake', '@danish', '@donut', '@dragée', '@fruitcake', '@gingerbread', '@gummi', '@ice', '@jelly-o',
+                                    '@liquorice', '@macaroon', '@marzipan', '@oat', '@pie', '@plum', '@pudding', '@sesame', '@snaps', '@soufflé',
+                                    '@sugar', '@sweet', '@topping', '@wafer'
+                                ],
+                                minimumCharacters: 1
+                            }
+                        ]
+                    },
+                    removePlugins: [
+                        'CKBox',
+                        'CKFinder',
+                        'EasyImage',
+                        'RealTimeCollaborativeComments',
+                        'RealTimeCollaborativeTrackChanges',
+                        'RealTimeCollaborativeRevisionHistory',
+                        'PresenceList',
+                        'Comments',
+                        'TrackChanges',
+                        'TrackChangesData',
+                        'RevisionHistory',
+                        'Pagination',
+                        'WProofreader',
+                        'MathType',
+                        'SlashCommand',
+                        'Template',
+                        'DocumentOutline',
+                        'FormatPainter',
+                        'TableOfContents',
+                        'PasteFromOfficeFormattingCleanup'
+                    ],
+                    language: 'fr'
+                })
+                .then(editor => {
+                    console.log('Éditeur initialisé avec succès');
+                    window.editor = editor;
+
+                    // Attachement de la barre d'outils
+                    const toolbarContainer = document.getElementById('toolbar-container');
+                    toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+
+                    // Synchronisation avec le champ caché du formulaire
+                    editor.model.document.on('change:data', () => {
+                        document.getElementById('pv_contenu').value = editor.getData();
+                    });
+
+                    // Focus initial sur l'éditeur
+                    editor.editing.view.focus();
+                })
+                .catch(error => {
+                    console.error('Erreur lors de l\'initialisation de l\'éditeur:', error);
+                });
+            });
+            function addAssocie() {
+                var div = document.createElement('div');
+                div.className = 'multi-group';
+                div.innerHTML = '<input type="text" name="associes[]" placeholder="Nom de l\'associé">' +
+                                '<input type="text" name="details_associes[]" placeholder="Détails">' +
+                                '<button type="button" class="add-btn" onclick="this.parentNode.remove()">-</button>';
+                document.getElementById('associes').appendChild(div);
+            }
+            function addSignataire() {
+                var div = document.createElement('div');
+                div.className = 'multi-group';
+                div.innerHTML = '<input type="text" name="signataires[]" placeholder="Nom du signataire">' +
+                                '<input type="text" name="details_signataires[]" placeholder="Détails">' +
+                                '<button type="button" class="add-btn" onclick="this.parentNode.remove()">-</button>';
+                document.getElementById('signataires').appendChild(div);
+            }
+        </script>
+        <button type="submit">Générer le PV</button>
+    </form>
+    <br>
+    <a href="/logout">Déconnexion</a>
+</body>
+</html>
