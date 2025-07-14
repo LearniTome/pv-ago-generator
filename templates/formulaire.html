@@ -5,22 +5,166 @@
     <title>Formulaire PV AGO</title>
     <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/decoupled-document/ckeditor.js"></script>
     <style>
-        .multi-group { margin-bottom: 1em; }
-        .multi-group input { margin-right: 0.5em; }
-        .add-btn { margin-left: 1em; }
-        .editor-container { border: 1px solid #ddd; min-height: 400px; padding: 10px; }
-        #toolbar-container { padding: 10px; background: #f4f4f4; border: 1px solid #ddd; margin-bottom: 5px; }
-        #editor-content { min-height: 400px; border: 1px solid #ddd; padding: 20px; }
-        .ck-editor__editable { min-height: 400px; }
-        .ck-editor__editable_inline { min-height: 400px; }
-        .ck.ck-editor__main>.ck-editor__editable { min-height: 400px; }
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f4f4f4;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 1.5em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        fieldset {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 2em;
+            padding: 1.5em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        legend {
+            font-weight: bold;
+            color: #2c3e50;
+            padding: 0 10px;
+            font-size: 1.1em;
+        }
+        label {
+            display: inline-block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+            min-width: 200px;
+        }
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            width: calc(100% - 220px);
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        textarea {
+            width: 100%;
+            min-height: 100px;
+        }
+        .multi-group {
+            margin-bottom: 1em;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .multi-group input {
+            margin-right: 0.5em;
+            width: calc(45% - 50px);
+        }
+        .add-btn {
+            margin-left: 1em;
+            padding: 5px 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .add-btn:hover {
+            background: #2980b9;
+        }
+        button[type="submit"] {
+            display: block;
+            width: 200px;
+            margin: 2em auto;
+            padding: 12px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button[type="submit"]:hover {
+            background: #27ae60;
+        }
+        .editor-wrapper {
+            max-width: 1140px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .editor-container { border: 1px solid #ddd; min-height: 400px; padding: 10px; background: white; }
+        .form-container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .field-group {
+            margin-bottom: 20px;
+        }
+        #toolbar-container {
+            padding: 12px 20px;
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #editor-content {
+            min-height: 400px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .ck-editor__editable {
+            min-height: 400px;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 2cm !important;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .ck-editor__editable_inline {
+            min-height: 400px;
+        }
+        .ck.ck-editor__main>.ck-editor__editable {
+            min-height: 400px;
+            border: none !important;
+            background: white !important;
+        }
+        /* Style Word-like page */
+        @media print {
+            .ck-editor__editable {
+                padding: 2cm !important;
+                box-shadow: none !important;
+            }
+        }
     </style>
 </head>
 <body>
-    <h2>Générer un PV d'Assemblée Générale Ordinaire</h2>
-    <form method="post" action="/generer">
-        <fieldset>
-            <legend>Informations sur l'entreprise</legend>
+    <div class="form-container">
+        <h2>Générer un PV d'Assemblée Générale Ordinaire</h2>
+        <form method="post" action="/generer">
+            <fieldset>
+                <legend>Informations sur l'entreprise</legend>
+                <div class="section-title">Détails de la société</div>
             <label>Nom de l'entreprise :</label>
             <input type="text" name="nom_entreprise" required><br>
             <label>Type de société :</label>
@@ -79,12 +223,14 @@
             <label>Remarques :</label><br>
             <textarea name="remarques" rows="3" cols="50"></textarea><br>
         </fieldset>
-        <fieldset>
-            <legend>Contenu du PV (éditeur avancé)</legend>
-            <div id="toolbar-container"></div>
-            <div class="editor-container">
-                <div id="editor-content"></div>
-                <input type="hidden" name="pv_contenu" id="pv_contenu">
+        <fieldset style="padding: 0; border: none; margin: 20px 0;">
+            <legend style="padding: 0 20px;">Contenu du PV (éditeur avancé)</legend>
+            <div class="editor-wrapper">
+                <div id="toolbar-container"></div>
+                <div class="editor-container">
+                    <div id="editor-content"></div>
+                    <input type="hidden" name="pv_contenu" id="pv_contenu">
+                </div>
             </div>
         </fieldset>
         <script>
@@ -114,20 +260,21 @@
                     ],
                     toolbar: {
                         items: [
-                            'exportPDF','exportWord', '|',
+                            'save', 'exportPDF', 'exportWord', '|',
+                            'undo', 'redo', '|',
                             'findAndReplace', 'selectAll', '|',
                             'heading', '|',
-                            'bold', 'italic', 'strikethrough', 'underline', 'subscript', 'superscript', '|',
-                            'bulletedList', 'numberedList', 'todoList', '|',
-                            'outdent', 'indent', '|',
-                            'undo', 'redo',
-                            '-',
+                            'style', '|',
+                            'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', '|',
                             'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', 'highlight', '|',
                             'alignment', '|',
-                            'link', 'insertImage', 'blockQuote', 'insertTable', 'mediaEmbed', '|',
+                            'numberedList', 'bulletedList', 'todoList', '|',
+                            'outdent', 'indent', '|',
+                            'link', 'insertImage', 'blockQuote', 'insertTable', '|',
                             'specialCharacters', 'horizontalLine', 'pageBreak', '|',
                             'textPartLanguage', '|',
-                            'sourceEditing'
+                            'sourceEditing', '|',
+                            'showBlocks'
                         ],
                         shouldNotGroupWhenFull: true
                     },
@@ -256,8 +403,24 @@
             }
         </script>
         <button type="submit">Générer le PV</button>
-    </form>
-    <br>
-    <a href="/logout">Déconnexion</a>
+        </form>
+        <a href="/logout" class="logout-btn">Déconnexion</a>
+    </div>
+    <style>
+        .logout-btn {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+            text-decoration: none;
+        }
+    </style>
 </body>
 </html>
