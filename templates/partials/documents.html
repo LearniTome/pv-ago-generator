@@ -1,0 +1,42 @@
+<!-- Section Documents -->
+<div class="form-section" id="documents-section" style="display: none;">
+    <h3 class="section-title">
+        <i class="fas fa-file-alt"></i>
+        Détails de l'AGO
+    </h3>
+    <div class="document-container">
+        <div class="mb-3">
+            <label for="objet_ago" class="form-label required-field">Objet de l'AGO</label>
+            <input type="text" class="form-control" id="objet_ago" name="objet_ago" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="date_ago" class="form-label required-field">Date de l'AGO</label>
+            <input type="date" class="form-control" id="date_ago" name="date_ago" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="lieu_ago" class="form-label required-field">Lieu de l'AGO</label>
+            <input type="text" class="form-control" id="lieu_ago" name="lieu_ago" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="heure_ago" class="form-label required-field">Heure de l'AGO</label>
+            <input type="time" class="form-control" id="heure_ago" name="heure_ago" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="documents" class="form-label">Documents à Joindre</label>
+            <input type="file" class="form-control" id="documents" name="documents[]" multiple>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" onclick="previousSection('documents')">
+            <i class="fas fa-arrow-left"></i> Précédent
+        </button>
+        <button type="button" class="btn btn-primary" onclick="nextSection('documents')">
+            Aperçu <i class="fas fa-eye"></i>
+        </button>
+    </div>
+</div>

@@ -1,0 +1,49 @@
+<!-- Section Associés -->
+<div class="form-section" id="associes-section" style="display: none;">
+    <h3 class="section-title">
+        <i class="fas fa-users"></i>
+        Informations sur les associés
+    </h3>
+    <div id="associes-container">
+        <!-- Les associés seront ajoutés ici dynamiquement -->
+    </div>
+    <div class="text-end">
+        <button type="button" class="btn btn-primary add-associe-btn" onclick="ajouterAssocie()">
+            Ajouter un Associé <i class="fas fa-plus ms-2"></i>
+        </button>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" onclick="previousSection('associes')">
+            <i class="fas fa-arrow-left"></i> Précédent
+        </button>
+        <button type="button" class="btn btn-primary" onclick="nextSection('associes')">
+            Suivant <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Template pour un nouvel associé -->
+<template id="associe-template">
+    <div class="associe-container mb-4 p-3 border rounded">
+        <h4 class="mb-3">Associé #<span class="associe-numero"></span></h4>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label required-field">Nom complet</label>
+                <input type="text" class="form-control" name="associe_nom[]" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label required-field">Parts</label>
+                <input type="number" class="form-control" name="associe_parts[]"
+                       required min="1" onchange="calculerPourcentage(this)">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Pourcentage</label>
+                <input type="text" class="form-control" name="associe_pourcentage[]" readonly>
+            </div>
+        </div>
+        <button type="button" class="btn btn-danger btn-sm mt-2" onclick="supprimerAssocie(this)">
+            <i class="fas fa-trash"></i> Supprimer
+        </button>
+    </div>
+</template>

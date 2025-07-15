@@ -1,0 +1,89 @@
+<!-- Section Entreprise -->
+<div class="form-section" id="entreprise-section">
+    <h3 class="section-title">
+        <i class="fas fa-building"></i>
+        Informations sur l'entreprise
+    </h3>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="custom-input-wrapper">
+                <label for="nom_entreprise" class="form-label required-field">Dénomination de la Société</label>
+                <input type="text" class="form-control" id="nom_entreprise" name="nom_entreprise" required>
+                <i class="fas fa-signature custom-input-icon"></i>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="custom-input-wrapper">
+                <label for="type_societe" class="form-label required-field">Statut juridique</label>
+                <select class="form-select" id="type_societe" name="type_societe" required onchange="checkAssociesCount()">
+                    <option value="">Sélectionnez le statut juridique</option>
+                    <option value="SARL">SARL</option>
+                    <option value="SARL AU">SARL AU</option>
+                </select>
+                <i class="fas fa-balance-scale custom-input-icon"></i>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="custom-input-wrapper">
+                <label for="capital" class="form-label required-field">Capital (en MAD)</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-coins"></i></span>
+                    <input type="number" class="form-control number-input" id="capital" name="capital"
+                           required min="1" step="1" onchange="formatCapital(this)">
+                    <span class="input-group-text">MAD</span>
+                </div>
+                <div id="capital-text" class="form-text text-muted mt-2"></div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="custom-input-wrapper">
+                <label for="adresse" class="form-label required-field">Siège Social</label>
+                <textarea class="form-control" id="adresse" name="adresse" rows="2" required></textarea>
+                <i class="fas fa-map-marker-alt custom-input-icon"></i>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="custom-input-wrapper">
+                <label for="if_number" class="form-label required-field">Identifiant Fiscal (IF)</label>
+                <input type="text" class="form-control number-input" id="if_number" name="if_number"
+                       required pattern="[0-9]+" maxlength="8"
+                       oninput="validateInput(this, 8, 'if-error')">
+                <i class="fas fa-id-card custom-input-icon"></i>
+                <div class="validation-message" id="if-error"></div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="custom-input-wrapper">
+                <label for="rc_number" class="form-label required-field">Registre de Commerce (RC)</label>
+                <input type="text" class="form-control number-input" id="rc_number" name="rc_number"
+                       required pattern="[0-9]+" maxlength="6"
+                       oninput="validateInput(this, 6, 'rc-error')">
+                <i class="fas fa-book custom-input-icon"></i>
+                <div class="validation-message" id="rc-error"></div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="custom-input-wrapper">
+                <label for="ice_number" class="form-label required-field">ICE</label>
+                <input type="text" class="form-control number-input" id="ice_number" name="ice_number"
+                       required pattern="[0-9]+" maxlength="15"
+                       oninput="validateInput(this, 15, 'ice-error')">
+                <i class="fas fa-fingerprint custom-input-icon"></i>
+                <div class="validation-message" id="ice-error"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-end">
+        <button type="button" class="btn btn-primary" onclick="nextSection('entreprise')">
+            Suivant <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+</div>

@@ -458,10 +458,8 @@ def generate_preview(data):
         if not os.path.exists(template_path):
             return '<p class="text-danger">Modèle non trouvé</p>'
 
-        # Création d'une copie temporaire pour la prévisualisation
-        temp_preview = os.path.join(TEMP_DIR, f'preview_{uuid.uuid4()}.docx')
-        shutil.copy2(template_path, temp_preview)
-        doc = Document(temp_preview)
+        # Lecture directe du modèle sans créer de copie temporaire
+        doc = Document(template_path)
 
         preview_html = []
         for paragraph in doc.paragraphs:
@@ -501,9 +499,6 @@ def generate_preview(data):
                     preview_html.append('</ul>')
                 else:
                     preview_html.append(f'<p>{content}</p>')
-
-        # Nettoyage du fichier temporaire
-        os.remove(temp_preview)
 
         return '\n'.join(preview_html)
     except Exception as e:
