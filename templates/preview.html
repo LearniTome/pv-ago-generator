@@ -2,41 +2,187 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Aperçu du PV AGO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prévisualisation du PV</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .preview-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 800px;
+        }
+        .action-buttons {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+        .btn-floating {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .btn-floating:hover {
+            transform: translateY(-2px);
+        }
+        .document-page {
+            background-color: white;
+            padding: 40px;
+            margin: 20px auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 21cm;
+            min-height: 29.7cm;
+            position: relative;
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        .document-content {
+            font-size: 12pt;
+            line-height: 1.5;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        @media print {
+            .action-buttons {
+                display: none;
+            }
+            .document-page {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Aperçu du PV généré</h2>
-    <h3>Entreprise</h3>
-    <p><b>Nom :</b> {{ data.nom_entreprise }}</p>
-    <p><b>Type de société :</b> {{ data.type_societe }}</p>
-    <p><b>Capital :</b> {{ data.capital }}</p>
-    <p><b>Adresse :</b> {{ data.adresse }}</p>
-    <p><b>Informations fiscales :</b> {{ data.infos_fiscales }}</p>
-    <h3>Assemblée</h3>
-    <p><b>Date :</b> {{ data.date_assemblee }}</p>
-    <p><b>Lieu :</b> {{ data.lieu_assemblee }}</p>
-    <p><b>Nom associé unique :</b> {{ data.nom_associe }}</p>
-    <p><b>Détails associé unique :</b> {{ data.details_associe }}</p>
-    <h3>Participants</h3>
-    <pre>{{ data.participants }}</pre>
-    <h3>Ordre du jour</h3>
-    <pre>{{ data.ordre_jour }}</pre>
-    <h3>Décisions prises</h3>
-    <pre>{{ data.decisions }}</pre>
-    <h3>Résultats des votes</h3>
-    <pre>{{ data.votes }}</pre>
-    <h3>Remarques</h3>
-    <pre>{{ data.remarques }}</pre>
-    <hr>
-    <p>Le document Word a été généré : <b>{{ wordfile }}</b></p>
-    <form method="post" action="/convert_pdf">
-        <input type="hidden" name="wordfile" value="{{ wordfile }}">
-        <button type="submit">Convertir en PDF</button>
-    </form>
-    {% if pdf_file %}
-        <p>Le PDF est prêt : <a href="/pv/{{ pdf_file }}" target="_blank">Télécharger le PV PDF</a></p>
-    {% endif %}
-    <br>
-    <a href="/formulaire">Retour au formulaire</a>
+    <div class="loading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="document-page">
+            <div class="document-content" id="preview-content">
+                <!-- Le contenu du PV sera injecté ici -->
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn btn-primary btn-floating" onclick="downloadWord()" title="Télécharger en Word">
+            <i class="fas fa-file-word"></i>
+        </button>
+        <button class="btn btn-danger btn-floating" onclick="downloadPDF()" title="Télécharger en PDF">
+            <i class="fas fa-file-pdf"></i>
+        </button>
+        <button class="btn btn-secondary btn-floating" onclick="window.print()" title="Imprimer">
+            <i class="fas fa-print"></i>
+        </button>
+        <a href="/formulaire" class="btn btn-info btn-floating" title="Retour au formulaire">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showLoading() {
+            document.querySelector('.loading').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.querySelector('.loading').style.display = 'none';
+        }
+
+        async function downloadWord() {
+            showLoading();
+            try {
+                const wordfile = document.getElementById('wordfile').value;
+                window.location.href = `/pv/${wordfile}`;
+            } catch (error) {
+                console.error('Erreur lors du téléchargement:', error);
+                alert('Une erreur est survenue lors du téléchargement.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function downloadPDF() {
+            showLoading();
+            try {
+                const formData = new FormData();
+                formData.append('wordfile', document.getElementById('wordfile').value);
+
+                const response = await fetch('/convert_pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = document.getElementById('wordfile').value.replace('.docx', '.pdf');
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                } else {
+                    throw new Error('Erreur lors de la conversion en PDF');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue lors de la conversion en PDF.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Fonction pour formater le contenu du PV
+        function formatContent(content) {
+            return content.split('\n').map(line => `<p>${line}</p>`).join('');
+        }
+
+        // Initialisation du contenu
+        document.addEventListener('DOMContentLoaded', () => {
+            const content = document.getElementById('pv-content').textContent;
+            document.getElementById('preview-content').innerHTML = formatContent(content);
+        });
+    </script>
+
+    <!-- Variables cachées -->
+    <input type="hidden" id="wordfile" value="{{ wordfile }}">
+    <div style="display: none;" id="pv-content">{{ content }}</div>
 </body>
 </html>

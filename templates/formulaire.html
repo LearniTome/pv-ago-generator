@@ -2,237 +2,519 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Formulaire PV AGO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de PV AGO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet">
     <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/decoupled-document/ckeditor.js"></script>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
         body {
-            margin: 0;
-            padding: 20px;
-            background: #f4f4f4;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             line-height: 1.6;
+            color: var(--primary-color);
+            padding-top: 2rem;
+            padding-bottom: 2rem;
         }
-        h2 {
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
             text-align: center;
-            color: #2c3e50;
-            font-size: 2em;
-            margin-bottom: 1.5em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        fieldset {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 2em;
-            padding: 1.5em;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        legend {
-            font-weight: bold;
-            color: #2c3e50;
-            padding: 0 10px;
-            font-size: 1.1em;
-        }
-        label {
-            display: inline-block;
-            margin-bottom: 8px;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
             font-weight: 600;
-            color: #34495e;
-            min-width: 200px;
+            position: relative;
+            padding-bottom: 1rem;
         }
-        input[type="text"],
-        input[type="date"],
-        textarea {
-            width: calc(100% - 220px);
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1em;
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--secondary-color);
+            border-radius: 3px;
         }
-        textarea {
-            width: 100%;
-            min-height: 100px;
-        }
-        .multi-group {
-            margin-bottom: 1em;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-        }
-        .multi-group input {
-            margin-right: 0.5em;
-            width: calc(45% - 50px);
-        }
-        .add-btn {
-            margin-left: 1em;
-            padding: 5px 15px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .add-btn:hover {
-            background: #2980b9;
-        }
-        button[type="submit"] {
-            display: block;
-            width: 200px;
-            margin: 2em auto;
-            padding: 12px;
-            background: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button[type="submit"]:hover {
-            background: #27ae60;
-        }
-        .editor-wrapper {
-            max-width: 1140px;
-            margin: 0 auto;
+
+        .form-section {
             background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
         }
-        .editor-container { border: 1px solid #ddd; min-height: 400px; padding: 10px; background: white; }
-        .form-container {
-            max-width: 1140px;
-            margin: 0 auto;
-            padding: 20px;
+
+        .form-section:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
         }
+
         .section-title {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .field-group {
-            margin-bottom: 20px;
+
+        .form-label {
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
         }
-        #toolbar-container {
-            padding: 12px 20px;
-            background: #fff;
-            border-bottom: 1px solid #ddd;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: var(--border-radius);
+            padding: 0.75rem;
+            transition: var(--transition);
         }
-        #editor-content {
-            min-height: 400px;
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin: 0 auto;
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .required-field::after {
+            content: "*";
+            color: var(--danger-color);
+            margin-left: 4px;
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .validation-message {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .validation-error {
+            color: var(--danger-color);
+        }
+
+        .validation-success {
+            color: var(--success-color);
+        }
+
+        .floating-help {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
             background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 1000;
         }
-        .ck-editor__editable {
-            min-height: 400px;
-            max-width: 850px;
-            margin: 0 auto;
-            padding: 2cm !important;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+
+        .floating-help:hover {
+            transform: scale(1.1);
+            background-color: var(--secondary-color);
+            color: white;
         }
-        .ck-editor__editable_inline {
-            min-height: 400px;
+
+        .tooltip {
+            font-size: 0.875rem;
         }
-        .ck.ck-editor__main>.ck-editor__editable {
-            min-height: 400px;
-            border: none !important;
-            background: white !important;
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
         }
-        /* Style Word-like page */
-        @media print {
-            .ck-editor__editable {
-                padding: 2cm !important;
-                box-shadow: none !important;
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .form-section {
+                padding: 1.5rem;
             }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        /* Custom form elements styling */
+        .custom-input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .custom-input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            transition: var(--transition);
+        }
+
+        .custom-input-wrapper .form-control {
+            padding-left: 2.5rem;
+        }
+
+        .custom-input-wrapper .form-control:focus + .custom-input-icon {
+            color: var(--secondary-color);
+        }
+
+        /* Progress indicator */
+        .form-progress {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            padding: 1rem;
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            transition: var(--transition);
+        }
+
+        .progress-step.active::after {
+            background: var(--secondary-color);
+        }
+
+        .progress-step.completed::after {
+            background: var(--success-color);
+        }
+
+        .progress-label {
+            position: relative;
+            z-index: 2;
+            color: white;
+            font-weight: 500;
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1050;
+        }
+
+        .custom-toast {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
         }
     </style>
 </head>
-<body>
-    <div class="form-container">
-        <h2>Générer un PV d'Assemblée Générale Ordinaire</h2>
-        <form method="post" action="/generer">
-            <fieldset>
-                <legend>Informations sur l'entreprise</legend>
-                <div class="section-title">Détails de la société</div>
-            <label>Nom de l'entreprise :</label>
-            <input type="text" name="nom_entreprise" required><br>
-            <label>Type de société :</label>
-            <input type="text" name="type_societe" required><br>
-            <label>Capital :</label>
-            <input type="text" name="capital" required><br>
-            <label>Adresse :</label>
-            <input type="text" name="adresse" required><br>
-            <label>Informations fiscales :</label>
-            <input type="text" name="infos_fiscales"><br>
-        </fieldset>
-        <fieldset>
-            <legend>Associés</legend>
-            <div id="associes">
-                <div class="multi-group">
-                    <input type="text" name="associes[]" placeholder="Nom de l'associé">
-                    <input type="text" name="details_associes[]" placeholder="Détails">
-                    <button type="button" class="add-btn" onclick="addAssocie()">+</button>
+    <body>
+        <div class="main-container">
+            <h1 class="page-title">Générateur de PV d'Assemblée Générale Ordinaire</h1>
+
+            <!-- Indicateur de progression -->
+            <div class="form-progress">
+                <div class="progress-steps">
+                    <div class="progress-step active" id="step1">
+                        <span class="progress-label">1</span>
+                        <div class="mt-2">Entreprise</div>
+                    </div>
+                    <div class="progress-step" id="step2">
+                        <span class="progress-label">2</span>
+                        <div class="mt-2">Associés</div>
+                    </div>
+                    <div class="progress-step" id="step3">
+                        <span class="progress-label">3</span>
+                        <div class="mt-2">Détails AGO</div>
+                    </div>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
                 </div>
             </div>
-        </fieldset>
-        <fieldset>
-            <legend>Signataires</legend>
-            <div id="signataires">
-                <div class="multi-group">
-                    <input type="text" name="signataires[]" placeholder="Nom du signataire">
-                    <input type="text" name="details_signataires[]" placeholder="Détails">
-                    <button type="button" class="add-btn" onclick="addSignataire()">+</button>
+
+            <!-- Container pour les notifications -->
+            <div class="toast-container"></div>
+
+            <form id="pv-form" method="POST" action="{{ url_for('generer') }}">
+                <!-- Section Entreprise -->
+                <div class="form-section" id="entreprise-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-building"></i>
+                        Informations sur l'entreprise
+                    </h3>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="custom-input-wrapper">
+                                <label for="nom_entreprise" class="form-label required-field">Dénomination de la Société</label>
+                                <input type="text" class="form-control" id="nom_entreprise" name="nom_entreprise" required>
+                                <i class="fas fa-signature custom-input-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="custom-input-wrapper">
+                                <label for="type_societe" class="form-label required-field">Statut juridique</label>
+                                <select class="form-select" id="type_societe" name="type_societe" required onchange="checkAssociesCount()">
+                                    <option value="">Sélectionnez le statut juridique</option>
+                                    <option value="SARL">SARL</option>
+                                    <option value="SARL AU">SARL AU</option>
+                                </select>
+                                <i class="fas fa-balance-scale custom-input-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="custom-input-wrapper">
+                                <label for="capital" class="form-label required-field">Capital (en MAD)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-coins"></i></span>
+                                    <input type="number" class="form-control number-input" id="capital" name="capital"
+                                           required min="1" step="1" onchange="formatCapital(this)">
+                                    <span class="input-group-text">MAD</span>
+                                </div>
+                                <div id="capital-text" class="form-text text-muted mt-2"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="custom-input-wrapper">
+                                <label for="adresse" class="form-label required-field">Siège Social</label>
+                                <textarea class="form-control" id="adresse" name="adresse" rows="2" required></textarea>
+                                <i class="fas fa-map-marker-alt custom-input-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="custom-input-wrapper">
+                                <label for="if_number" class="form-label required-field">Identifiant Fiscal (IF)</label>
+                                <input type="text" class="form-control number-input" id="if_number" name="if_number"
+                                       required pattern="[0-9]+" maxlength="8"
+                                       oninput="validateInput(this, 8, 'if-error')">
+                                <i class="fas fa-id-card custom-input-icon"></i>
+                                <div class="validation-message" id="if-error"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="custom-input-wrapper">
+                                <label for="rc_number" class="form-label required-field">Registre de Commerce (RC)</label>
+                                <input type="text" class="form-control number-input" id="rc_number" name="rc_number"
+                                       required pattern="[0-9]+" maxlength="6"
+                                       oninput="validateInput(this, 6, 'rc-error')">
+                                <i class="fas fa-book custom-input-icon"></i>
+                                <div class="validation-message" id="rc-error"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="custom-input-wrapper">
+                                <label for="ice_number" class="form-label required-field">ICE</label>
+                                <input type="text" class="form-control number-input" id="ice_number" name="ice_number"
+                                       required pattern="[0-9]+" maxlength="15"
+                                       oninput="validateInput(this, 15, 'ice-error')">
+                                <i class="fas fa-fingerprint custom-input-icon"></i>
+                                <div class="validation-message" id="ice-error"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-end">
+                        <button type="button" class="btn btn-primary" onclick="nextSection('entreprise')">
+                            Suivant <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </fieldset>
-        <fieldset>
-            <legend>Informations sur l'assemblée</legend>
-            <label>Date de l'assemblée :</label>
-            <input type="date" name="date_assemblee" required><br>
-            <label>Lieu de l'assemblée :</label>
-            <input type="text" name="lieu_assemblee" required><br>
-            <label>Nom de l'associé unique :</label>
-            <input type="text" name="nom_associe" required><br>
-            <label>Détails de l'associé unique :</label>
-            <input type="text" name="details_associe"><br>
-        </fieldset>
-        <fieldset>
-            <legend>Participants</legend>
-            <label>Participants (nom, titre, signature) :</label><br>
-            <textarea name="participants" rows="4" cols="50" placeholder="Un participant par ligne : nom, titre, signature" required></textarea><br>
-        </fieldset>
-        <fieldset>
-            <legend>Ordre du jour et décisions</legend>
-            <label>Ordre du jour :</label><br>
-            <textarea name="ordre_jour" rows="4" cols="50" required></textarea><br>
-            <label>Détails des décisions prises :</label><br>
-            <textarea name="decisions" rows="3" cols="50" required></textarea><br>
-            <label>Résultats des votes :</label><br>
-            <textarea name="votes" rows="3" cols="50" required></textarea><br>
-            <label>Remarques :</label><br>
-            <textarea name="remarques" rows="3" cols="50"></textarea><br>
-        </fieldset>
-        <fieldset style="padding: 0; border: none; margin: 20px 0;">
-            <legend style="padding: 0 20px;">Contenu du PV (éditeur avancé)</legend>
-            <div class="editor-wrapper">
-                <div id="toolbar-container"></div>
-                <div class="editor-container">
-                    <div id="editor-content"></div>
-                    <input type="hidden" name="pv_contenu" id="pv_contenu">
+
+                <!-- Section Associés -->
+                <div class="form-section" id="associes-section" style="display: none;">
+                    <h3 class="section-title">
+                        <i class="fas fa-users"></i>
+                        Informations sur les associés
+                    </h3>
+                    <div id="associes-container">
+                        <!-- Les associés seront ajoutés ici dynamiquement -->
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-primary add-associe-btn" onclick="ajouterAssocie()">
+                            Ajouter un Associé <i class="fas fa-plus ms-2"></i>
+                        </button>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" onclick="previousSection('associes')">
+                            <i class="fas fa-arrow-left"></i> Précédent
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="nextSection('associes')">
+                            Suivant <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </fieldset>
+
+                <!-- Section Documents -->
+                <div class="form-section" id="documents-section" style="display: none;">
+                    <h3 class="section-title">
+                        <i class="fas fa-file-alt"></i>
+                        Détails de l'AGO
+                    </h3>
+                    <div class="document-container">
+                        <div class="mb-3">
+                            <label for="objet_ago" class="form-label required-field">Objet de l'AGO</label>
+                            <input type="text" class="form-control" id="objet_ago" name="objet_ago" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="date_ago" class="form-label required-field">Date de l'AGO</label>
+                            <input type="date" class="form-control" id="date_ago" name="date_ago" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="lieu_ago" class="form-label required-field">Lieu de l'AGO</label>
+                            <input type="text" class="form-control" id="lieu_ago" name="lieu_ago" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="heure_ago" class="form-label required-field">Heure de l'AGO</label>
+                            <input type="time" class="form-control" id="heure_ago" name="heure_ago" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="documents" class="form-label">Documents à Joindre</label>
+                            <input type="file" class="form-control" id="documents" name="documents[]" multiple>
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" onclick="previousSection('documents')">
+                            <i class="fas fa-arrow-left"></i> Précédent
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="nextSection('documents')">
+                            Aperçu <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Section Aperçu -->
+                <div class="form-section" id="preview-section" style="display: none;">
+                    <h3 class="section-title">
+                        <i class="fas fa-eye"></i>
+                        Aperçu du PV
+                    </h3>
+                    <div id="preview-container">
+                        <!-- Le contenu prévisualisé sera affiché ici -->
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" onclick="previousSection('preview')">
+                            <i class="fas fa-arrow-left"></i> Précédent
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            Générer le PV <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bouton d'aide flottant -->
+        <div class="floating-help" onclick="showHelp()" data-bs-toggle="tooltip" title="Besoin d'aide ?">
+            <i class="fas fa-question-circle fa-2x"></i>
+        </div>
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 DecoupledEditor.create(document.querySelector('#editor-content'), {
@@ -323,104 +605,621 @@
                                 label: 'Downloadable',
                                 attributes: {
                                     download: 'file'
-                                }
                             }
                         }
-                    },
-                    mention: {
-                        feeds: [
-                            {
-                                marker: '@',
-                                feed: [
-                                    '@apple', '@bears', '@brownie', '@cake', '@cake', '@candy', '@canes', '@chocolate', '@cookie', '@cotton', '@cream',
-                                    '@cupcake', '@danish', '@donut', '@dragée', '@fruitcake', '@gingerbread', '@gummi', '@ice', '@jelly-o',
-                                    '@liquorice', '@macaroon', '@marzipan', '@oat', '@pie', '@plum', '@pudding', '@sesame', '@snaps', '@soufflé',
-                                    '@sugar', '@sweet', '@topping', '@wafer'
-                                ],
-                                minimumCharacters: 1
-                            }
-                        ]
-                    },
-                    removePlugins: [
-                        'CKBox',
-                        'CKFinder',
-                        'EasyImage',
-                        'RealTimeCollaborativeComments',
-                        'RealTimeCollaborativeTrackChanges',
-                        'RealTimeCollaborativeRevisionHistory',
-                        'PresenceList',
-                        'Comments',
-                        'TrackChanges',
-                        'TrackChangesData',
-                        'RevisionHistory',
-                        'Pagination',
-                        'WProofreader',
-                        'MathType',
-                        'SlashCommand',
-                        'Template',
-                        'DocumentOutline',
-                        'FormatPainter',
-                        'TableOfContents',
-                        'PasteFromOfficeFormattingCleanup'
-                    ],
-                    language: 'fr'
-                })
-                .then(editor => {
-                    console.log('Éditeur initialisé avec succès');
-                    window.editor = editor;
+                    }
+                },
+                mention: {
+                    feeds: [
+                        {
+                            marker: '@',
+                            feed: [
+                                '@apple', '@bears', '@brownie', '@cake', '@cake', '@candy', '@canes', '@chocolate', '@cookie', '@cotton', '@cream',
+                                '@cupcake', '@danish', '@donut', '@dragée', '@fruitcake', '@gingerbread', '@gummi', '@ice', '@jelly-o',
+                                '@liquorice', '@macaroon', '@marzipan', '@oat', '@pie', '@plum', '@pudding', '@sesame', '@snaps', '@soufflé',
+                                '@sugar', '@sweet', '@topping', '@wafer'
+                            ],
+                            minimumCharacters: 1
+                        }
+                    ]
+                },
+                removePlugins: [
+                    'CKBox',
+                    'CKFinder',
+                    'EasyImage',
+                    'RealTimeCollaborativeComments',
+                    'RealTimeCollaborativeTrackChanges',
+                    'RealTimeCollaborativeRevisionHistory',
+                    'PresenceList',
+                    'Comments',
+                    'TrackChanges',
+                    'TrackChangesData',
+                    'RevisionHistory',
+                    'Pagination',
+                    'WProofreader',
+                    'MathType',
+                    'SlashCommand',
+                    'Template',
+                    'DocumentOutline',
+                    'FormatPainter',
+                    'TableOfContents',
+                    'PasteFromOfficeFormattingCleanup'
+                ],
+                language: 'fr'
+            })
+            .then(editor => {
+                console.log('Éditeur initialisé avec succès');
+                window.editor = editor;
 
-                    // Attachement de la barre d'outils
-                    const toolbarContainer = document.getElementById('toolbar-container');
-                    toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+                // Attachement de la barre d'outils
+                const toolbarContainer = document.getElementById('toolbar-container');
+                toolbarContainer.appendChild(editor.ui.view.toolbar.element);
 
-                    // Synchronisation avec le champ caché du formulaire
-                    editor.model.document.on('change:data', () => {
-                        document.getElementById('pv_contenu').value = editor.getData();
+                // Synchronisation avec le champ caché du formulaire
+                editor.model.document.on('change:data', () => {
+                    document.getElementById('pv_contenu').value = editor.getData();
+                });
+
+                // Focus initial sur l'éditeur
+                editor.editing.view.focus();
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'initialisation de l\'éditeur:', error);
+            });
+        });
+        function addAssocie() {
+            var div = document.createElement('div');
+            div.className = 'multi-group';
+            div.innerHTML = '<input type="text" name="associes[]" placeholder="Nom de l\'associé">' +
+                            '<input type="text" name="details_associes[]" placeholder="Détails">' +
+                            '<button type="button" class="add-btn" onclick="this.parentNode.remove()">-</button>';
+            document.getElementById('associes-container').appendChild(div);
+        }
+        function addSignataire() {
+            var div = document.createElement('div');
+            div.className = 'multi-group';
+            div.innerHTML = '<input type="text" name="signataires[]" placeholder="Nom du signataire">' +
+                            '<input type="text" name="details_signataires[]" placeholder="Détails">' +
+                            '<button type="button" class="add-btn" onclick="this.parentNode.remove()">-</button>';
+            document.getElementById('signataires').appendChild(div);
+        }
+
+        // Fonction de prévisualisation en temps réel
+        async function updatePreview() {
+            const formData = new FormData(document.getElementById('pv-form'));
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value });
+
+            try {
+                const response = await fetch('/preview', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.preview) {
+                    document.getElementById('preview-container').innerHTML = result.preview;
+                }
+            } catch (error) {
+                console.error('Erreur de prévisualisation:', error);
+            }
+        }
+
+        // Fonction d'import Excel
+        async function importExcel() {
+            const fileInput = document.getElementById('excel-import');
+            if (!fileInput.files.length) {
+                alert('Veuillez sélectionner un fichier Excel');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/import_excel', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.data) {
+                    // Remplissage automatique du formulaire
+                    Object.entries(result.data).forEach(([key, value]) => {
+                        const input = document.querySelector(`[name="${key}"]`);
+                        if (input) {
+                            input.value = value;
+                        }
                     });
+                    updatePreview();
+                }
+            } catch (error) {
+                console.error('Erreur d\'import:', error);
+                alert('Erreur lors de l\'import du fichier Excel');
+            }
+        }
 
-                    // Focus initial sur l'éditeur
-                    editor.editing.view.focus();
-                })
-                .catch(error => {
-                    console.error('Erreur lors de l\'initialisation de l\'éditeur:', error);
+        // Gestion des templates favoris
+        async function loadTemplates() {
+            try {
+                const response = await fetch('/get_favorites');
+                const result = await response.json();
+                const select = document.getElementById('favorite-templates');
+                select.innerHTML = '<option value="">Sélectionner un template</option>';
+                result.favorites.forEach(favorite => {
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify(favorite.template);
+                    option.textContent = favorite.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erreur de chargement des templates:', error);
+            }
+        }
+
+        async function loadTemplate() {
+            const select = document.getElementById('favorite-templates');
+            if (!select.value) return;
+
+            const template = JSON.parse(select.value);
+            Object.entries(template).forEach(([key, value]) => {
+                const input = document.querySelector(`[name="${key}"]`);
+                if (input) {
+                    input.value = value;
+                }
+            });
+            updatePreview();
+        }
+
+        async function saveTemplate() {
+            const name = prompt('Nom du template:');
+            if (!name) return;
+
+            const formData = new FormData(document.getElementById('pv-form'));
+            const template = {};
+            formData.forEach((value, key) => { template[key] = value });
+
+            try {
+                const response = await fetch('/save_favorite', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        template: template
+                    })
+                });
+                const result = await response.json();
+                if (result.message) {
+                    alert('Template sauvegardé avec succès');
+                    loadTemplates();
+                }
+            } catch (error) {
+                console.error('Erreur de sauvegarde:', error);
+                alert('Erreur lors de la sauvegarde du template');
+            }
+        }
+
+        let totalParts = 0;
+
+        function ajouterAssocie() {
+            const container = document.getElementById('associes-container');
+            const template = document.getElementById('associe-template');
+            const clone = template.content.cloneNode(true);
+
+            // Mise à jour du numéro d'associé
+            const numeroAssocie = container.children.length + 1;
+            clone.querySelector('.associe-numero').textContent = numeroAssocie;
+
+            // Ajout de l'associé au container
+            container.appendChild(clone);
+
+            // Mise à jour des pourcentages
+            updateAllPercentages();
+        }
+
+        function supprimerAssocie(element) {
+            const associeContainer = element.closest('.associe-container');
+            associeContainer.remove();
+
+            // Mise à jour des numéros d'associés
+            const containers = document.querySelectorAll('.associe-container');
+            containers.forEach((container, index) => {
+                container.querySelector('.associe-numero').textContent = index + 1;
+            });
+
+            // Mise à jour des pourcentages
+            updateAllPercentages();
+        }
+
+        function calculerPourcentage(input) {
+            updateAllPercentages();
+        }
+
+        function updateAllPercentages() {
+            const containers = document.querySelectorAll('.associe-container');
+            let totalParts = 0;
+
+            // Calculer le total des parts
+            containers.forEach(container => {
+                const parts = parseInt(container.querySelector('[name="associe_parts[]"]').value) || 0;
+                totalParts += parts;
+            });
+
+            // Mettre à jour les pourcentages
+            containers.forEach(container => {
+                const parts = parseInt(container.querySelector('[name="associe_parts[]"]').value) || 0;
+                const percentage = totalParts > 0 ? ((parts / totalParts) * 100).toFixed(2) : '0';
+                container.querySelector('[name="associe_pourcentage[]"]').value = percentage + '%';
+            });
+        }
+
+        function checkAssociesCount() {
+            const typeSociete = document.querySelector('[name="type_societe"]').value;
+            const containers = document.querySelectorAll('.associe-container');
+            const addButton = document.querySelector('.add-associe-btn');
+            const warning = document.createElement('div');
+            warning.className = 'alert alert-warning mt-3';
+
+            // Supprime les avertissements précédents
+            document.querySelectorAll('.alert-warning').forEach(el => el.remove());
+
+            if (typeSociete === 'SARL AU' && containers.length > 1) {
+                warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Une SARL AU ne peut avoir qu\'un seul associé.';
+                addButton.disabled = true;
+                containers[0].parentNode.insertBefore(warning, containers[0]);
+            } else if (typeSociete === 'SARL' && containers.length < 2) {
+                warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Une SARL doit avoir au moins deux associés.';
+                containers[0].parentNode.insertBefore(warning, containers[0]);
+            } else {
+                addButton.disabled = false;
+            }
+        }
+
+        // Validation du formulaire
+        document.getElementById('pv-form').addEventListener('submit', function(e) {
+            const containers = document.querySelectorAll('.associe-container');
+            const typeSociete = document.querySelector('[name="type_societe"]').value;
+
+            if (typeSociete === 'SARL AU' && containers.length !== 1) {
+                e.preventDefault();
+                alert('Une SARL AU doit avoir exactement un associé.');
+                return;
+            }
+
+            if (typeSociete === 'SARL' && containers.length < 2) {
+                e.preventDefault();
+                alert('Une SARL doit avoir au moins deux associés.');
+                return;
+            }
+
+            // Vérification du total des pourcentages
+            let totalPourcentage = 0;
+            containers.forEach(container => {
+                const pourcentage = parseFloat(container.querySelector('[name="associe_pourcentage[]"]').value);
+                totalPourcentage += pourcentage;
+            });
+
+            if (Math.abs(totalPourcentage - 100) > 0.01) {
+                e.preventDefault();
+                alert('Le total des parts doit être égal à 100%');
+            }
+        });
+
+        // Système unifié de navigation du formulaire
+        const sections = ['entreprise', 'associes', 'documents', 'preview'];
+        let currentSection = 'entreprise';        function nextSection(current) {
+            console.log('nextSection called with:', current);
+            const currentIndex = sections.indexOf(current);
+            console.log('Current index:', currentIndex);
+
+            if (currentIndex < sections.length - 1) {
+                // Masquer la section actuelle
+                const currentSection = document.getElementById(`${current}-section`);
+                console.log('Current section element:', currentSection);
+                if (currentSection) {
+                    currentSection.style.display = 'none';
+                } else {
+                    console.error(`Section element not found: ${current}-section`);
+                }
+
+                // Afficher la section suivante
+                const nextSectionId = `${sections[currentIndex + 1]}-section`;
+                const nextSection = document.getElementById(nextSectionId);
+                console.log('Next section element:', nextSection);
+                if (nextSection) {
+                    nextSection.style.display = 'block';
+                } else {
+                    console.error(`Section element not found: ${nextSectionId}`);
+                }
+
+                // Mettre à jour la barre de progression
+                updateProgressBar(currentIndex + 1);
+            } else {
+                console.log('Already at last section');
+            }
+        }
+
+        function previousSection(current) {
+            const currentIndex = sections.indexOf(current);
+            if (currentIndex > 0) {
+                // Masquer la section actuelle
+                document.getElementById(`${current}-section`).style.display = 'none';
+
+                // Afficher la section précédente
+                const prevSectionId = `${sections[currentIndex - 1]}-section`;
+                document.getElementById(prevSectionId).style.display = 'block';
+
+                // Mettre à jour la barre de progression
+                updateProgressBar(currentIndex - 1);
+
+                // Mettre à jour la section active
+                currentSection = sections[currentIndex - 1];
+            }
+        }
+
+        function updateProgressBar(sectionIndex) {
+            const progress = ((sectionIndex + 1) / sections.length) * 100;
+            const progressBar = document.querySelector('.progress-bar');
+            progressBar.style.width = `${progress}%`;
+            progressBar.setAttribute('aria-valuenow', progress);
+
+            // Mettre à jour les étapes
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                if (index <= sectionIndex) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialisation au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Masquer toutes les sections sauf la première
+            sections.forEach(section => {
+                const sectionElement = document.getElementById(`${section}-section`);
+                if (sectionElement) {
+                    sectionElement.style.display = section === 'entreprise' ? 'block' : 'none';
+                }
+            });
+
+            // Initialiser la barre de progression
+            updateProgressBar(0);
+        });
+        // Fonction de débogage pour vérifier la structure des sections
+        function debugFormSections() {
+            console.log('=== Debugging Form Sections ===');
+            sections.forEach(section => {
+                const element = document.getElementById(`${section}-section`);
+                console.log(`Section "${section}":`, {
+                    element: element,
+                    display: element ? element.style.display : 'element not found',
+                    exists: !!element
                 });
             });
-            function addAssocie() {
-                var div = document.createElement('div');
-                div.className = 'multi-group';
-                div.innerHTML = '<input type="text" name="associes[]" placeholder="Nom de l\'associé">' +
-                                '<input type="text" name="details_associes[]" placeholder="Détails">' +
-                                '<button type="button" class="add-btn" onclick="this.parentNode.remove()">-</button>';
-                document.getElementById('associes').appendChild(div);
-            }
-            function addSignataire() {
-                var div = document.createElement('div');
-                div.className = 'multi-group';
-                div.innerHTML = '<input type="text" name="signataires[]" placeholder="Nom du signataire">' +
-                                '<input type="text" name="details_signataires[]" placeholder="Détails">' +
-                                '<button type="button" class="add-btn" onclick="this.parentNode.remove()">-</button>';
-                document.getElementById('signataires').appendChild(div);
-            }
+        }
+
+        // Initialisation améliorée
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+
+            // Vérifier la présence de toutes les sections
+            debugFormSections();
+
+            // Masquer toutes les sections sauf la première
+            sections.forEach(section => {
+                const sectionElement = document.getElementById(`${section}-section`);
+                if (sectionElement) {
+                    sectionElement.style.display = section === 'entreprise' ? 'block' : 'none';
+                    console.log(`Set display for ${section}-section:`, sectionElement.style.display);
+                } else {
+                    console.error(`Section ${section}-section not found in DOM`);
+                }
+            });
+
+            // Initialiser la barre de progression
+            updateProgressBar(0);
+
+            // Vérification finale de l'état des sections
+            debugFormSections();
+        });
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTemplates();
+            // Attacher l'événement de mise à jour de la prévisualisation à tous les champs
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('change', updatePreview);
+                input.addEventListener('keyup', updatePreview);
+            });
+            // Prévisualisation initiale
+            updatePreview();
+        });
         </script>
-        <button type="submit">Générer le PV</button>
-        </form>
-        <a href="/logout" class="logout-btn">Déconnexion</a>
-    </div>
-    <style>
-        .logout-btn {
-            display: inline-block;
-            margin: 20px 0;
-            padding: 10px 20px;
-            background: #e74c3c;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-        .logout-btn:hover {
-            background: #c0392b;
-            text-decoration: none;
-        }
-    </style>
-</body>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Initialisation des tooltips Bootstrap
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+
+            // Gestion du formatage du capital
+            function formatCapital(input) {
+                const value = parseInt(input.value);
+                if (!isNaN(value)) {
+                    // Format en nombre avec séparateur de milliers
+                    const formatted = new Intl.NumberFormat('fr-FR').format(value);
+                    document.getElementById('capital-text').innerHTML =
+                        `<i class="fas fa-check-circle text-success"></i> ${formatted} Dirhams`;
+                    showToast('success', 'Capital enregistré avec succès');
+                }
+            }
+
+            // Validation des champs numériques
+            function validateInput(input, length, errorId) {
+                const value = input.value;
+                const error = document.getElementById(errorId);
+                const validationMessage = document.createElement('div');
+
+                if (value.length > 0 && value.length !== length) {
+                    validationMessage.innerHTML = `
+                        <i class="fas fa-exclamation-circle"></i>
+                        Doit contenir exactement ${length} chiffres (${value.length}/${length})
+                    `;
+                    validationMessage.className = 'validation-message validation-error';
+                    error.innerHTML = '';
+                    error.appendChild(validationMessage);
+                } else if (value.length === length) {
+                    validationMessage.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        Format correct
+                    `;
+                    validationMessage.className = 'validation-message validation-success';
+                    error.innerHTML = '';
+                    error.appendChild(validationMessage);
+                    showToast('success', 'Format validé');
+                } else {
+                    error.innerHTML = '';
+                }
+            }
+
+            // Gestion des toasts de notification
+            function showToast(type, message) {
+                const toastContainer = document.querySelector('.toast-container');
+                const toast = document.createElement('div');
+                toast.className = `custom-toast ${type}`;
+                const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+
+                toast.innerHTML = `
+                    <i class="fas fa-${icon} ${type === 'success' ? 'text-success' : 'text-danger'}"></i>
+                    <span>${message}</span>
+                `;
+
+                toastContainer.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.animation = 'fadeOut 0.3s ease-out forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            // Gestion de la progression du formulaire
+            let currentStep = 1;
+            const totalSteps = 3;
+
+            function updateProgress() {
+                const progressBar = document.querySelector('.progress-bar');
+                const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+                progressBar.style.width = `${progress}%`;
+
+                // Mise à jour des étapes
+                for (let i = 1; i <= totalSteps; i++) {
+                    const step = document.getElementById(`step${i}`);
+                    if (i < currentStep) {
+                        step.classList.add('completed');
+                        step.classList.remove('active');
+                    } else if (i === currentStep) {
+                        step.classList.add('active');
+                        step.classList.remove('completed');
+                    } else {
+                        step.classList.remove('completed', 'active');
+                    }
+                }
+            }
+
+            function validateSection() {
+                const section = document.getElementById(`section-step${currentStep}`);
+                const inputs = section.querySelectorAll('input[required], select[required], textarea[required]');
+                let isValid = true;
+
+                inputs.forEach(input => {
+                    if (!input.value) {
+                        isValid = false;
+                        input.classList.add('is-invalid');
+                        showToast('error', 'Veuillez remplir tous les champs obligatoires');
+                    } else {
+                        input.classList.remove('is-invalid');
+                    }
+                });
+
+                return isValid;
+            }
+
+            // Cette fonction a été remplacée par la nouvelle implémentation de nextSection
+
+            function prevSection() {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateProgress();
+                }
+            }
+
+            // Fonction d'aide
+            function showHelp() {
+                // Création d'une modale Bootstrap pour l'aide
+                const modalHtml = `
+                    <div class="modal fade" id="helpModal" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Aide à la saisie</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <h6>Format des champs :</h6>
+                                    <ul>
+                                        <li>IF : 8 chiffres exactement</li>
+                                        <li>RC : 6 chiffres exactement</li>
+                                        <li>ICE : 15 chiffres exactement</li>
+                                        <li>Capital : Nombre entier positif</li>
+                                    </ul>
+                                    <h6>Conseils :</h6>
+                                    <ul>
+                                        <li>Tous les champs marqués d'un * sont obligatoires</li>
+                                        <li>Vérifiez bien le statut juridique avant de continuer</li>
+                                        <li>Les informations peuvent être modifiées avant la génération finale</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Ajout de la modale au document
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+                // Affichage de la modale
+                const modal = new bootstrap.Modal(document.getElementById('helpModal'));
+                modal.show();
+
+                // Nettoyage après fermeture
+                document.getElementById('helpModal').addEventListener('hidden.bs.modal', function () {
+                    this.remove();
+                });
+            }
+
+            // Initialisation
+            document.addEventListener('DOMContentLoaded', function() {
+                updateProgress();
+
+                // Animation des sections au scroll
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('slide-in');
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.form-section').forEach((section) => {
+                    observer.observe(section);
+                });
+            });
+        </script>
+    </body>
 </html>
