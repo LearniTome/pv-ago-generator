@@ -36,3 +36,10 @@ pv/*.pdf
 # OS specific
 .DS_Store
 Thumbs.db
+
+# Fichiers temporaires de Word
+~$*.docx
+~*.tmp
+
+# Fichiers temporaires de prévisualisation
+static/output/temp/*.docx
