@@ -18,10 +18,24 @@ app.secret_key = 'votre_cle_secrete_a_modifier'
 
 # Configuration des chemins
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'static', 'templates')
 TEMPLATES = {
-    'SARL': os.path.join(BASE_DIR, 'static', 'templates', 'modele_pv_ago_sarl.docx'),
-    'SARL AU': os.path.join(BASE_DIR, 'static', 'templates', 'modele_pv_ago_sarl_au.docx')
+    'SARL': os.path.join(TEMPLATES_DIR, 'modele_pv_ago_sarl.docx'),
+    'SARL AU': os.path.join(TEMPLATES_DIR, 'modele_pv_ago_sarl_au.docx')
 }
+
+# Create templates directory if it doesn't exist
+os.makedirs(TEMPLATES_DIR, exist_ok=True)
+
+# Ensure template files exist
+default_template = os.path.join(TEMPLATES_DIR, 'modele_pv_ago.docx')
+if os.path.exists(default_template):
+    # If only the default template exists, use it for both types
+    if not os.path.exists(TEMPLATES['SARL']):
+        shutil.copy2(default_template, TEMPLATES['SARL'])
+    if not os.path.exists(TEMPLATES['SARL AU']):
+        shutil.copy2(default_template, TEMPLATES['SARL AU'])
+
 OUTPUT_DIR = os.path.join(BASE_DIR, 'static', 'output')
 TEMP_DIR = os.path.join(OUTPUT_DIR, 'temp')
 DB_PATH = os.path.join(BASE_DIR, 'database.db')
@@ -307,16 +321,91 @@ def download_pv(filename):
 
 # Route pour la prévisualisation en temps réel
 @app.route('/preview', methods=['POST'])
-def preview():
-    if 'username' not in session:
-        return jsonify({'error': 'Non authentifié'}), 401
+def preview_document():
     try:
-        data = request.json
-        # Générer une prévisualisation HTML du document
-        preview_html = generate_preview(data)
-        return jsonify({'preview': preview_html})
+        # Get form data from request
+        form_data = request.json
+        type_societe = form_data.get('type_societe', 'SARL')
+        template_path = TEMPLATES[type_societe]
+
+        # Debug info
+        print(f"Looking for template at: {template_path}")
+        print(f"Template exists: {os.path.exists(template_path)}")
+        print(f"Templates dir contents: {os.listdir(TEMPLATES_DIR)}")
+
+        # If the specific template doesn't exist, try using the default template
+        if not os.path.exists(template_path):
+            default_template = os.path.join(TEMPLATES_DIR, 'modele_pv_ago.docx')
+            if os.path.exists(default_template):
+                print(f"Using default template: {default_template}")
+                template_path = default_template
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': f'No template found. Please ensure at least one template file exists in {TEMPLATES_DIR}'
+                }), 404
+
+        # Generate a temporary preview file
+        preview_id = str(uuid.uuid4())
+        temp_file = os.path.join(TEMP_DIR, f'preview_{preview_id}.docx')
+
+        try:
+            # Load and process the template
+            doc = Document(template_path)
+
+            # Fill in the document with form data
+            for paragraph in doc.paragraphs:
+                text = paragraph.text
+                text = text.replace('[OBJET_AGO]', form_data.get('objet_ago', ''))
+                text = text.replace('[DATE_AGO]', form_data.get('date_ago', ''))
+                text = text.replace('[LIEU_AGO]', form_data.get('lieu_ago', ''))
+                text = text.replace('[HEURE_AGO]', form_data.get('heure_ago', ''))
+                paragraph.text = text
+
+            # Save the preview document
+            doc.save(temp_file)
+
+            # Convert to PDF
+            pdf_file = os.path.join(TEMP_DIR, f'preview_{preview_id}.pdf')
+            if convert_to_pdf(temp_file, pdf_file):
+                return jsonify({
+                    'success': True,
+                    'preview_id': preview_id
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': 'Error converting document to PDF'
+                }), 500
+
+        except Exception as e:
+            import traceback
+            print(f"Error processing template: {str(e)}")
+            print(traceback.format_exc())
+            return jsonify({
+                'success': False,
+                'error': f'Error processing template: {str(e)}'
+            }), 500
+
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        print(f"General error: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/get_preview/<preview_id>')
+def get_preview(preview_id):
+    try:
+        pdf_file = os.path.join(TEMP_DIR, f'preview_{preview_id}.pdf')
+        return send_file(pdf_file, mimetype='application/pdf')
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': 'Preview not found'
+        }), 404
 
 # Route pour sauvegarder un template favori
 @app.route('/save_favorite', methods=['POST'])
@@ -352,20 +441,59 @@ def get_favorites():
         return jsonify({'error': str(e)}), 500
 
 # Route for the associates
-@app.route('/associates', methods=['POST'])
-def associates():
+@app.route('/save_associes', methods=['POST'])
+def save_associes():
     if 'username' not in session:
         return jsonify({'error': 'Non authentifié'}), 401
     try:
         data = request.json
-        pv_id = data.get('pv_id')
         associes = data.get('associes', [])
 
-        # Enregistrement des associés dans la base de données
-        save_associes(pv_id, associes)
+        # Créer une entrée temporaire dans l'historique des PV pour les associés
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
 
-        return jsonify({'message': 'Associés enregistrés avec succès'})
+        # Insérer un PV temporaire
+        c.execute('''INSERT INTO pv_history
+                    (username, date_creation, type_societe, nom_entreprise, filename)
+                    VALUES (?, ?, ?, ?, ?)''',
+                 (session['username'],
+                  datetime.now().strftime('%Y-%m-%d'),
+                  'temp',
+                  'temp',
+                  'temp'))
+
+        pv_id = c.lastrowid
+
+        # Sauvegarder les associés
+        for associe in associes:
+            c.execute('''INSERT INTO associes
+                        (pv_id, nom, prenom, adresse, cni, cni_validite, cni_lieu,
+                         email, telephone, nombre_parts, pourcentage)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                     (pv_id,
+                      associe['nom'],
+                      associe['prenom'],
+                      associe['adresse'],
+                      associe['cni'],
+                      associe['cni_validite'],
+                      associe.get('cni_lieu'),
+                      associe.get('email'),
+                      associe.get('telephone'),
+                      associe['parts'],
+                      associe['pourcentage']))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'message': 'Associés sauvegardés avec succès',
+            'pv_id': pv_id
+        })
     except Exception as e:
+        if conn:
+            conn.rollback()
+            conn.close()
         return jsonify({'error': str(e)}), 500
 
 # Route pour l'historique des PV
@@ -575,6 +703,51 @@ def generate_associes_section(doc, associes):
         row_cells[1].text = str(associe['parts'])
         row_cells[2].text = f"{associe['pourcentage']}%"
         row_cells[3].text = ''  # Espace pour la signature
+
+
+def convert_to_pdf(docx_path, pdf_path):
+    try:
+        # Lire le document Word
+        doc = Document(docx_path)
+
+        # Créer un PDF
+        c = canvas.Canvas(pdf_path, pagesize=A4)
+        width, height = A4
+        y = height - 40
+
+        # Configuration de la police
+        c.setFont("Helvetica", 12)
+
+        # Convertir chaque paragraphe
+        for paragraph in doc.paragraphs:
+            if paragraph.text.strip():
+                # Gestion des sauts de page
+                if y < 40:
+                    c.showPage()
+                    y = height - 40
+                    c.setFont("Helvetica", 12)
+
+                # Écriture du texte
+                text = paragraph.text
+                # Limiter la largeur du texte
+                while len(text) * 7 > width - 80:  # estimation grossière de la largeur du texte
+                    split_point = text.rfind(' ', 0, int(width/7))
+                    if split_point == -1:
+                        split_point = int(width/7)
+                    c.drawString(40, y, text[:split_point])
+                    text = text[split_point:].strip()
+                    y -= 20
+
+                if text:
+                    c.drawString(40, y, text)
+                    y -= 20
+
+        c.save()
+        return True
+
+    except Exception as e:
+        print(f"Error converting to PDF: {str(e)}")
+        return False
 
 
 if __name__ == '__main__':

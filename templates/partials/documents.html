@@ -31,12 +31,67 @@
         </div>
     </div>
 
+    <!-- Preview Modal -->
+    <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel">Aperçu du Document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="previewFrame" style="width: 100%; height: 600px;" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="mt-4 d-flex justify-content-between">
         <button type="button" class="btn btn-secondary" onclick="previousSection('documents')">
             <i class="fas fa-arrow-left"></i> Précédent
         </button>
-        <button type="button" class="btn btn-primary" onclick="nextSection('documents')">
+        <button type="button" class="btn btn-primary" onclick="previewDocument()">
             Aperçu <i class="fas fa-eye"></i>
         </button>
     </div>
 </div>
+
+<script>
+function previewDocument() {
+    // Collect form data
+    const formData = {
+        objet_ago: document.getElementById('objet_ago').value,
+        date_ago: document.getElementById('date_ago').value,
+        lieu_ago: document.getElementById('lieu_ago').value,
+        heure_ago: document.getElementById('heure_ago').value,
+        type_societe: document.getElementById('type_societe')?.value || 'SARL'
+    };
+
+    // Send request to preview endpoint
+    fetch('/preview', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Load the preview in the iframe
+            const previewFrame = document.getElementById('previewFrame');
+            previewFrame.src = `/get_preview/${data.preview_id}`;
+
+            // Show the modal
+            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            previewModal.show();
+        } else {
+            console.error('Preview generation error:', data);
+            alert(`Error generating preview: ${data.error}\n\nPlease try again or contact support if the issue persists.`);
+        }
+    })
+    .catch(error => {
+        console.error('Network or system error:', error);
+        alert('A system error occurred while generating the preview. Please try again or contact support if the issue persists.');
+    });
+}
+</script>

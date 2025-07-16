@@ -1,49 +1,145 @@
-<!-- Section Associés -->
-<div class="form-section" id="associes-section" style="display: none;">
-    <h3 class="section-title">
-        <i class="fas fa-users"></i>
-        Informations sur les associés
-    </h3>
-    <div id="associes-container">
-        <!-- Les associés seront ajoutés ici dynamiquement -->
-    </div>
-    <div class="text-end">
-        <button type="button" class="btn btn-primary add-associe-btn" onclick="ajouterAssocie()">
-            Ajouter un Associé <i class="fas fa-plus ms-2"></i>
-        </button>
-    </div>
+<!-- Section des associés -->
+<section id="associes-section" class="form-section" style="display: none;">
+    <h2>Informations sur les associés</h2>
 
-    <div class="mt-4 d-flex justify-content-between">
-        <button type="button" class="btn btn-secondary" onclick="previousSection('associes')">
-            <i class="fas fa-arrow-left"></i> Précédent
-        </button>
-        <button type="button" class="btn btn-primary" onclick="nextSection('associes')">
-            Suivant <i class="fas fa-arrow-right"></i>
-        </button>
-    </div>
-</div>
-
-<!-- Template pour un nouvel associé -->
-<template id="associe-template">
-    <div class="associe-container mb-4 p-3 border rounded">
-        <h4 class="mb-3">Associé #<span class="associe-numero"></span></h4>
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label required-field">Nom complet</label>
-                <input type="text" class="form-control" name="associe_nom[]" required>
+    <!-- Total des parts sociales -->
+    <div class="total-parts-section mb-4">
+        <h4>Total des parts sociales</h4>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Nombre total de parts</label>
+                    <input type="number" id="total-parts" class="form-control" readonly>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label required-field">Parts</label>
-                <input type="number" class="form-control" name="associe_parts[]"
-                       required min="1" onchange="calculerPourcentage(this)">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Pourcentage</label>
-                <input type="text" class="form-control" name="associe_pourcentage[]" readonly>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Pourcentage total</label>
+                    <div class="input-group">
+                        <input type="text" id="total-pourcentage" class="form-control" readonly>
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
             </div>
         </div>
-        <button type="button" class="btn btn-danger btn-sm mt-2" onclick="supprimerAssocie(this)">
-            <i class="fas fa-trash"></i> Supprimer
-        </button>
     </div>
-</template>
+
+    <!-- Liste des associés -->
+    <div id="associes-list">
+        <!-- Les associés seront ajoutés ici dynamiquement -->
+    </div>
+
+    <!-- Template pour un nouvel associé -->
+    <template id="associe-template">
+        <div class="associe-item card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="required">Nom</label>
+                            <input type="text" name="associe_nom[]" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="required">Prénom</label>
+                            <input type="text" name="associe_prenom[]" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="required">Adresse</label>
+                            <input type="text" name="associe_adresse[]" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="required">Numéro de CNI</label>
+                            <input type="text" name="associe_cni[]" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="required">Date de validité CNI</label>
+                            <input type="date" name="associe_cni_validite[]" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Lieu de délivrance CNI</label>
+                            <input type="text" name="associe_cni_lieu[]" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="associe_email[]" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Téléphone</label>
+                            <input type="tel" name="associe_telephone[]" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="required">Nombre de parts</label>
+                            <input type="number" name="associe_parts[]" class="form-control parts-input" required min="1">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="required">Pourcentage</label>
+                            <div class="input-group">
+                                <input type="number" name="associe_pourcentage[]" class="form-control pourcentage-input" required min="0" max="100" step="0.01">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col">
+                        <button type="button" class="btn btn-danger remove-associe">
+                            <i class="fas fa-trash"></i> Supprimer cet associé
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Boutons de navigation -->
+    <div class="form-navigation mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-primary" id="add-associe">
+                    <i class="fas fa-plus"></i> Ajouter un associé
+                </button>
+                <button type="button" class="btn btn-success" id="save-associes">
+                    <i class="fas fa-save"></i> Sauvegarder
+                </button>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-secondary prev-section" id="prev-btn">
+                    <i class="fas fa-arrow-left"></i> Précédent
+                </button>
+                <button type="button" class="btn btn-primary next-section" id="next-btn">
+                    Suivant <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="alert alert-info mt-3" role="alert">
+            <i class="fas fa-info-circle"></i>
+            Le nombre total de parts doit être égal au capital social et le total des pourcentages doit être de 100%.
+        </div>
+    </div>
+</section>

@@ -1,62 +1,154 @@
 // Configuration des sections
-const sections = ['entreprise', 'associes', 'documents', 'preview'];
-let currentSection = 'entreprise';
+const sections = ['entreprise', 'associes', 'documents'];
+let currentSection = 0;
 
 // Navigation vers la section suivante
-function nextSection(current) {
-    console.log('nextSection called with:', current);
-    const currentIndex = sections.indexOf(current);
-
-    if (currentIndex < sections.length - 1) {
-        // Masquer la section actuelle
-        const currentSection = document.getElementById(`${current}-section`);
-        if (currentSection) {
-            currentSection.style.display = 'none';
-        }
-
-        // Afficher la section suivante
-        const nextSectionId = `${sections[currentIndex + 1]}-section`;
-        const nextSection = document.getElementById(nextSectionId);
-        if (nextSection) {
-            nextSection.style.display = 'block';
-        }
-
-        // Mettre à jour la barre de progression
-        updateProgressBar(currentIndex + 1);
+function nextSection() {
+    if (validateCurrentSection()) {
+        navigateToSection(currentSection + 1);
     }
 }
 
 // Navigation vers la section précédente
-function previousSection(current) {
-    const currentIndex = sections.indexOf(current);
-    if (currentIndex > 0) {
-        // Masquer la section actuelle
-        document.getElementById(`${current}-section`).style.display = 'none';
+function previousSection() {
+    navigateToSection(currentSection - 1);
+}
 
-        // Afficher la section précédente
-        const prevSectionId = `${sections[currentIndex - 1]}-section`;
-        document.getElementById(prevSectionId).style.display = 'block';
+// Validation de la section courante
+function validateCurrentSection() {
+    const currentSectionId = sections[currentSection];
 
-        // Mettre à jour la barre de progression
-        updateProgressBar(currentIndex - 1);
+    if (currentSectionId === 'entreprise') {
+        return validateEntrepriseSection();
+    } else if (currentSectionId === 'associes') {
+        return validateAssociesSection();
+    } else if (currentSectionId === 'documents') {
+        return validateDocumentsSection();
+    }
+
+    return true;
+}
+
+// Validation de la section entreprise
+function validateEntrepriseSection() {
+    const requiredFields = document.querySelectorAll('#entreprise-section [required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+
+    if (!isValid) {
+        showNotification('error', 'Veuillez remplir tous les champs obligatoires');
+    }
+
+    return isValid;
+}
+
+// Validation de la section associés
+function validateAssociesSection() {
+    const totalPourcentage = document.getElementById('total-pourcentage');
+    const totalParts = document.getElementById('total-parts');
+    const capitalInput = document.querySelector('input[name="capital"]');
+    const capital = parseInt(capitalInput?.value || 0);
+
+    let isValid = true;
+    const pourcentageTotal = parseFloat(totalPourcentage.value);
+    const partsTotal = parseInt(totalParts.value);
+
+    // Vérification des champs requis
+    const requiredFields = document.querySelectorAll('#associes-list [required]');
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+
+    // Vérification du total des pourcentages
+    if (Math.abs(pourcentageTotal - 100) > 0.01) {
+        isValid = false;
+        showNotification('error', 'Le total des pourcentages doit être égal à 100%');
+    }
+
+    // Vérification du total des parts
+    if (partsTotal !== capital) {
+        isValid = false;
+        showNotification('error', 'Le total des parts doit être égal au capital social');
+    }
+
+    return isValid;
+}
+
+// Validation de la section documents
+function validateDocumentsSection() {
+    // Ajoutez ici la validation spécifique pour la section documents
+    return true;
+}
+
+// Navigation vers une section
+function navigateToSection(index) {
+    if (index >= 0 && index < sections.length) {
+        document.getElementById(`${sections[currentSection]}-section`).style.display = 'none';
+        currentSection = index;
+        document.getElementById(`${sections[currentSection]}-section`).style.display = 'block';
+        updateProgress();
+        updateStepIndicators();
     }
 }
 
 // Mise à jour de la barre de progression
-function updateProgressBar(sectionIndex) {
-    const progress = ((sectionIndex + 1) / sections.length) * 100;
+function updateProgress() {
+    const progress = ((currentSection + 1) / sections.length) * 100;
     const progressBar = document.querySelector('.progress-bar');
     progressBar.style.width = `${progress}%`;
-    progressBar.setAttribute('aria-valuenow', progress);
+}
 
-    // Mettre à jour les étapes
-    document.querySelectorAll('.progress-step').forEach((step, index) => {
-        if (index <= sectionIndex) {
+// Mise à jour des indicateurs d'étapes
+function updateStepIndicators() {
+    sections.forEach((section, index) => {
+        const step = document.getElementById(`step${index + 1}`);
+        if (index === currentSection) {
             step.classList.add('active');
-        } else {
+        } else if (index < currentSection) {
+            step.classList.add('completed');
             step.classList.remove('active');
+        } else {
+            step.classList.remove('active', 'completed');
         }
     });
+}
+
+// Affichage de la section courante
+function showCurrentSection() {
+    sections.forEach((section, index) => {
+        const sectionElement = document.getElementById(`${section}-section`);
+        sectionElement.style.display = index === currentSection ? 'block' : 'none';
+    });
+    updateStepIndicators();
+}
+
+// Fonction pour afficher les notifications
+function showNotification(type, message) {
+    const toastContainer = document.querySelector('.toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type === 'success' ? 'bg-success' : 'bg-danger'} text-white`;
+    toast.innerHTML = `
+        <div class="toast-body">
+            ${message}
+        </div>
+    `;
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    setTimeout(() => toast.remove(), 3000);
 }
 
 // Initialisation
@@ -70,5 +162,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initialiser la barre de progression
-    updateProgressBar(0);
+    updateProgress();
+
+    // Ajouter les gestionnaires d'événements pour les boutons de navigation
+    document.querySelectorAll('.next-section').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            nextSection();
+        });
+    });
+
+    document.querySelectorAll('.prev-section').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            previousSection();
+        });
+    });
+
+    // Initialiser les indicateurs d'étapes
+    updateStepIndicators();
 });
