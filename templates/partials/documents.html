@@ -11,18 +11,44 @@
         </div>
 
         <div class="mb-3">
+            <label for="exercice" class="form-label required-field">Exercice</label>
+            <input type="number" class="form-control" id="exercice" name="exercice" required
+                   value="{{ default_values.get('exercice', '') }}">
+        </div>
+
+        <div class="mb-3">
             <label for="date_ago" class="form-label required-field">Date de l'AGO</label>
-            <input type="date" class="form-control" id="date_ago" name="date_ago" required>
+            <input type="date" class="form-control" id="date_ago" name="date_ago" required
+                   value="{{ default_values.get('date_ago', '') }}">
         </div>
 
         <div class="mb-3">
             <label for="lieu_ago" class="form-label required-field">Lieu de l'AGO</label>
-            <input type="text" class="form-control" id="lieu_ago" name="lieu_ago" required>
+            <input type="text" class="form-control" id="lieu_ago" name="lieu_ago" required
+                   value="{{ default_values.get('lieu_ago', '') }}">
         </div>
 
         <div class="mb-3">
             <label for="heure_ago" class="form-label required-field">Heure de l'AGO</label>
-            <input type="time" class="form-control" id="heure_ago" name="heure_ago" required>
+            <input type="time" class="form-control" id="heure_ago" name="heure_ago" required
+                   value="{{ default_values.get('heure_ago', '10:00') }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="ordre_du_jour" class="form-label required-field">Ordre du Jour</label>
+            <div id="ordre_du_jour_container">
+                {% for item in default_values.get('ordre_du_jour', []) %}
+                <div class="input-group mb-2">
+                    <input type="text" class="form-control" name="ordre_du_jour[]" value="{{ item }}" required>
+                    <button type="button" class="btn btn-outline-danger" onclick="removeOrdreJourItem(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addOrdreJourItem()">
+                <i class="fas fa-plus"></i> Ajouter un point
+            </button>
         </div>
 
         <div class="mb-3">
@@ -46,52 +72,165 @@
         </div>
     </div>
 
-    <div class="mt-4 d-flex justify-content-between">
+    <div class="mt-4 d-flex justify-content-between align-items-center">
         <button type="button" class="btn btn-secondary" onclick="previousSection('documents')">
             <i class="fas fa-arrow-left"></i> Précédent
         </button>
-        <button type="button" class="btn btn-primary" onclick="previewDocument()">
-            Aperçu <i class="fas fa-eye"></i>
-        </button>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-info" onclick="previewDocument()">
+                <i class="fas fa-eye"></i> Prévisualiser
+            </button>
+            <button type="button" class="btn btn-success" onclick="generateDocument()">
+                <i class="fas fa-file-download"></i> Générer le document
+            </button>
+        </div>
     </div>
 </div>
 
 <script>
-function previewDocument() {
-    // Collect form data
-    const formData = {
-        objet_ago: document.getElementById('objet_ago').value,
-        date_ago: document.getElementById('date_ago').value,
-        lieu_ago: document.getElementById('lieu_ago').value,
-        heure_ago: document.getElementById('heure_ago').value,
-        type_societe: document.getElementById('type_societe')?.value || 'SARL'
-    };
+let currentPreviewId = null;
 
-    // Send request to preview endpoint
+function previewDocument() {
+    // Désactiver tous les boutons pendant la requête
+    const previewButton = document.querySelector('button[onclick="previewDocument()"]');
+    const generateButton = document.querySelector('button[onclick="generateDocument()"]');
+    const originalPreviewText = previewButton.innerHTML;
+
+    previewButton.disabled = true;
+    generateButton.disabled = true;
+    previewButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération de l\'aperçu...';
+
+    if (!validateAllFields()) {
+        previewButton.disabled = false;
+        generateButton.disabled = false;
+        previewButton.innerHTML = originalPreviewText;
+        return;
+    }
+
+    const formData = createFormData();
+
+    // Envoyer la requête de prévisualisation
     fetch('/preview', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-    })    .then(response => response.json())
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            // Load the preview in the iframe
+            // Sauvegarder l'ID de prévisualisation actuel
+            currentPreviewId = data.preview_id;
+
+            // Afficher la prévisualisation
             const previewFrame = document.getElementById('previewFrame');
             previewFrame.src = `/get_preview/${data.preview_id}`;
 
-            // Show the modal
             const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
             previewModal.show();
+
+            // Réactiver le bouton de génération
+            generateButton.disabled = false;
         } else {
-            console.error('Preview generation error:', data);
-            alert(`Error generating preview: ${data.error}\n\nPlease try again or contact support if the issue persists.`);
+            throw new Error(data.error || 'Erreur lors de la prévisualisation');
         }
     })
     .catch(error => {
-        console.error('Network or system error:', error);
-        alert('A system error occurred while generating the preview. Please try again or contact support if the issue persists.');
+        console.error('Erreur:', error);
+        showStatusMessage('Erreur lors de la prévisualisation: ' + error.message, 'danger');
+    })
+    .finally(() => {
+        previewButton.disabled = false;
+        generateButton.disabled = false;
+        previewButton.innerHTML = originalPreviewText;
     });
 }
+
+function generateDocument() {
+    // Désactiver tous les boutons pendant la génération
+    const generateButton = document.querySelector('button[onclick="generateDocument()"]');
+    const previewButton = document.querySelector('button[onclick="previewDocument()"]');
+    const originalText = generateButton.innerHTML;
+
+    generateButton.disabled = true;
+    previewButton.disabled = true;
+    generateButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération en cours...';
+
+    try {
+        console.log("Début de la génération du document");
+
+        if (!validateAllFields()) {
+            console.log("Validation échouée");
+            throw new Error("Veuillez remplir correctement tous les champs obligatoires");
+        }
+
+        const formData = createFormData();
+        console.log("FormData créé, envoi de la requête");
+
+        // Envoyer la requête de génération
+        fetch('/generate', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            console.log("Réponse reçue:", response.status);
+            if (!response.ok) {
+                throw new Error(`Erreur serveur: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Données reçues:", data);
+            if (data.success) {
+                console.log("Génération réussie, téléchargement du fichier");
+                showStatusMessage('Document généré avec succès', 'success');
+
+                // Créer un lien de téléchargement invisible
+                const link = document.createElement('a');
+                link.href = data.download_url;
+                link.download = data.filename || 'document.pdf';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+
+                // Déclencher le téléchargement
+                console.log("Démarrage du téléchargement:", data.download_url);
+                link.click();
+
+                // Nettoyer le lien
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                }, 100);
+
+                // Activer le bouton suivant
+                const nextButton = document.querySelector('.next-step');
+                if (nextButton) {
+                    nextButton.disabled = false;
+                }
+            } else {
+                throw new Error(data.error || 'Erreur lors de la génération');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la génération:', error);
+            showStatusMessage('Erreur lors de la génération: ' + error.message, 'danger');
+        })
+        .finally(() => {
+            console.log("Fin du processus de génération");
+            generateButton.disabled = false;
+            previewButton.disabled = false;
+            generateButton.innerHTML = originalText;
+
+            // Nettoyer la prévisualisation actuelle
+            currentPreviewId = null;
+        });
+    } catch (error) {
+        console.error('Erreur:', error);
+        showStatusMessage(error.message, 'danger');
+        generateButton.disabled = false;
+        generateButton.innerHTML = originalText;
+    }
+}
+
+// Les fonctions de validation et utilitaires restent les mêmes
 </script>

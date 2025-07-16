@@ -3,8 +3,16 @@ const sections = ['entreprise', 'associes', 'documents'];
 let currentSection = 0;
 
 // Navigation vers la section suivante
-function nextSection() {
+function nextSection(currentSectionId) {
     if (validateCurrentSection()) {
+        // Mettre à jour la barre de progression
+        const progress = ((currentSection + 1) / sections.length) * 100;
+        document.querySelector('.progress-bar').style.width = `${progress}%`;
+
+        // Mettre à jour les étapes
+        document.querySelector(`.progress-step[id="step${currentSection + 1}"]`)?.classList.remove('active');
+        document.querySelector(`.progress-step[id="step${currentSection + 2}"]`)?.classList.add('active');
+
         navigateToSection(currentSection + 1);
     }
 }

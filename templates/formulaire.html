@@ -59,10 +59,24 @@
     </div>
 
     <!-- JavaScript -->
+    <script src="/static/js/init.js"></script>
     <script src="/static/js/navigation.js"></script>
     <script src="/static/js/validation.js"></script>
     <script src="/static/js/associes.js"></script>
     <script src="/static/js/preview.js"></script>
     <script src="/static/js/templates.js"></script>
+    <script src="/static/js/documents.js"></script>
+
+    <!-- Initialisation des scripts -->
+    <script>
+        // Empêcher les erreurs de console liées à CKEditor
+        window.CKEDITOR_TRANSLATIONS = window.CKEDITOR_TRANSLATIONS || {};
+
+        // Gérer les erreurs de chargement de ressources
+        window.addEventListener('unhandledrejection', function(event) {
+            console.warn('Unhandled promise rejection:', event.reason);
+            event.preventDefault();
+        });
+    </script>
 </body>
 </html>

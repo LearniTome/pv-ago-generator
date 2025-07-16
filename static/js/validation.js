@@ -1,7 +1,40 @@
+// Fonction pour afficher les toasts de notification si elle n'existe pas déjà
+if (typeof showToast !== 'function') {
+    function showToast(type, message) {
+        const toastContainer = document.querySelector('.toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : 'success'} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+
+        toastContainer.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+
+        toast.addEventListener('hidden.bs.toast', () => {
+            toast.remove();
+        });
+    }
+}
+
 // Validation des champs numériques
 function validateInput(input, length, errorId) {
+    if (!input || !errorId) return;
+
     const value = input.value;
     const error = document.getElementById(errorId);
+    if (!error) return;
+
     const validationMessage = document.createElement('div');
 
     if (value.length > 0 && value.length !== length) {
