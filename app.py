@@ -12,8 +12,20 @@ import pandas as pd
 import json
 from datetime import datetime, timedelta
 import sqlite3
+from models import db, Entreprise, Associe, PV, Template, User, Statistics
+from database import DatabaseManager
 
 app = Flask(__name__)
+
+# Configuration de la base de données SQLAlchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+
+# Créer les tables au démarrage
+with app.app_context():
+    db.create_all()
+
 app.secret_key = 'votre_cle_secrete_a_modifier'
 
 # Configuration des chemins
